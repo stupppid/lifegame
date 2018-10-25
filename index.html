@@ -7,8 +7,15 @@
 <body>
     <div id="wd" class="world"></div>
 	<div class="options">
-		<button id="start">开始</button>
+		<input id="a" type="number" min='0' placeholder="宽"/>
+		<input id="b" type="number" min='0' placeholder="高"/>
+		<br/>
+		<input id="p" type="number" min='0' placeholder="初始生存率,0-1之间"/>
 		<input id="time" type="number" min='0' placeholder="间隔时间(ms)"/>
+		<br/>
+		<button id="start">开始</button>
+		<button id="rand">随机</button>
+		
 	</div>
 <script>
     /**
@@ -33,10 +40,11 @@
 
         function initTable(){
             var wd = document.getElementById("wd");
-            for(var i = 0; i < a+2; i++){
+			wd.innerHTML=null;
+            for(var i = 0; i < b+2; i++){
                 var uel = document.createElement("div");
                 uel.setAttribute('class','uel');
-                for(var j = 0; j < b+2; j++){
+                for(var j = 0; j < a+2; j++){
                     var el = document.createElement("i");
                     el.setAttribute('class','el');
                     uel.appendChild(el);
@@ -71,11 +79,12 @@
 
         function autoSelectAlive(none){
             var uel = document.getElementById("uel");
-            for(var i = 0;i < a+1;i++){
+			theWorld.arr = [];
+            for(var i = 0;i < b+1;i++){
                 var newLine = [];
                 theWorld.arr.push(newLine);
-                for(var j = 0;j < b+1;j++){
-                    if(i == 0|| j == 0 || j == b || i == a || none){
+                for(var j = 0;j < a+1;j++){
+                    if(i == 0|| j == 0 || j == a || i == b || none){
                         newLine.push(false);
 						continue;
                     }
@@ -84,6 +93,7 @@
                         document.getElementsByClassName("uel")[i].children[j].setAttribute('class','el alive');
                     }else{
                         newLine.push(false);
+						document.getElementsByClassName("uel")[i].children[j].setAttribute('class','el');
                     }
                 }
             }
@@ -136,15 +146,30 @@
 			stop = true;
 			document.getElementById('start').addEventListener('click',function(){
 				t = document.getElementById('time').value || 0;
+				if(document.getElementById('a').value != a || document.getElementById('b').value !=b){
+					var at = parseInt(document.getElementById('a').value) || 20;
+					var bt = parseInt(document.getElementById('b').value) || 20;
+					console.log(a,at);
+					if(at != a-1 || bt != b-1){
+						a = at;
+						b = bt;
+						initTable();
+						autoSelectAlive(true);
+					}
+				}
+				p = document.getElementById('p').value || .3;
 				if(stop){
 					document.getElementById('start').innerText = '暂停';
+					setTimeout(setWorld,t);
 				}else{
 					document.getElementById('start').innerText = '开始';
 				}
-				setTimeout(setWorld,t);
 				stop = !stop;
 			})
 		}
+		document.getElementById('rand').addEventListener('click',function(){
+			autoSelectAlive(false);
+		})
     }
     initPersons(20,20,.3,false,100);
 
