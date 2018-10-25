@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="wd" class="world"></div>
+	<div class="options">
+		<button id="start">开始</button>
+		<input id="time" type="number" min='0' placeholder="间隔时间(ms)"/>
+	</div>
+<script>
+    /**
+     * 宽，高，初始幸存率，自己设置初始状态，间隔时间
+     * @param a
+     * @param b
+     * @param p
+	 * @param auto
+	 * @param t
+     */
+    function initPersons(a,b,p,auto,t){
+		var stop = false;
+        var theWorld = {
+            isOver:false,
+            arr:[],
+            getMatrix:function(i,j){
+                return this.arr[i-1][j-1] + this.arr[i-1][j] +this.arr[i-1][j+1]
+                    +this.arr[i][j-1] +this.arr[i][j+1]
+                    +this.arr[i+1][j-1] +this.arr[i+1][j] +this.arr[i+1][j+1];
+            }
+        };
+
+        function initTable(){
+            var wd = document.getElementById("wd");
+            for(var i = 0; i < a+2; i++){
+                var uel = document.createElement("div");
+                uel.setAttribute('class','uel');
+                for(var j = 0; j < b+2; j++){
+                    var el = document.createElement("i");
+                    el.setAttribute('class','el');
+                    uel.appendChild(el);
+                }
+                wd.appendChild(uel);
+            }
+            wd.style.width = (a + 2) * 15 + 1 + 'px';
+            a+=1;b+=1;
+            delete wd;
+        }
+		
+		function addEvent(){
+			var wd = document.getElementById("wd");
+			wd.addEventListener('click',function(e){
+				for(var i in e.target.parentNode.children){
+					if(e.target.parentNode.children[i] == e.target){
+						break;
+					}
+				}
+				for(var j=0;j<wd.children.length;j++){
+					if(wd.children[j] == e.target.parentNode){
+						break;
+					}
+				}
+				if(theWorld.arr[j][i]){
+					setDead(j,i);
+				}else{
+					setAlive(j,i);
+				}
+			})
+		}
+
+        function autoSelectAlive(none){
+            var uel = document.getElementById("uel");
+            for(var i = 0;i < a+1;i++){
+                var newLine = [];
+                theWorld.arr.push(newLine);
+                for(var j = 0;j < b+1;j++){
+                    if(i == 0|| j == 0 || j == b || i == a || none){
+                        newLine.push(false);
+						continue;
+                    }
+                    if(Math.random() < p){
+                        newLine.push(true);
+                        document.getElementsByClassName("uel")[i].children[j].setAttribute('class','el alive');
+                    }else{
+                        newLine.push(false);
+                    }
+                }
+            }
+        }
+
+        function setAlive(i,j){
+            theWorld.arr[i][j] = true;
+            document.getElementsByClassName("uel")[i].children[j].setAttribute('class','el alive');
+        }
+
+        function setDead(i,j){
+            theWorld.arr[i][j] = false;
+            document.getElementsByClassName("uel")[i].children[j].setAttribute('class','el');
+        }
+
+        function setWorld(){
+            for(var i in theWorld.arr){
+                if(i == 0 || i == theWorld.arr.length - 1){
+                    continue
+                }
+                for(var j in theWorld.arr[i]){
+                    if(j == 0 || j == theWorld.arr[i].length - 1){
+                        continue;
+                    }
+                    i = parseInt(i);
+                    j = parseInt(j);
+                    if(theWorld.getMatrix(i,j) != 2){
+                        theWorld.arr[i][j] = theWorld.getMatrix(i,j)==3 | false;
+                    }
+                    if(theWorld.arr[i][j]){
+                        setAlive(i,j)
+                    }else{
+                        setDead(i,j)
+                    }
+                }
+            }
+			if(!stop)
+			setTimeout(setWorld,t);
+        }
+		
+        initTable();
+		
+		if(auto){
+			autoSelectAlive();  //true是全部都死掉
+			//addEvent();
+			setTimeout(setWorld,t);
+		}else{
+			autoSelectAlive(true);
+			addEvent();
+			stop = true;
+			document.getElementById('start').addEventListener('click',function(){
+				t = document.getElementById('time').value || 0;
+				if(stop){
+					document.getElementById('start').innerText = '暂停';
+				}else{
+					document.getElementById('start').innerText = '开始';
+				}
+				setTimeout(setWorld,t);
+				stop = !stop;
+			})
+		}
+    }
+    initPersons(20,20,.3,false,100);
+
+</script>
+<style>
+    *{
+        padding: 0;
+        margin: 0;
+    }
+    .world{
+        margin: auto;
+    }
+    .uel{
+        height: 14px;
+		line-height: 14px;
+    }
+    .uel:nth-of-type(1)>.el{
+        border-top:solid 1px lightgray;
+    }
+    .el{
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        border-right:solid 1px lightgray;
+        border-bottom:solid 1px lightgray;
+        #transition: background-color ease-in-out 200ms;
+    }
+    .el:nth-of-type(1){
+        border-left:solid 1px lightgray;
+    }
+    .alive{
+        background-color: skyblue;
+    }
+	.options{
+		text-align: center;
+	}
+
+</style>
+</body>
+</html>
