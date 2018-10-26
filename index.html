@@ -110,7 +110,10 @@
         }
 
         function setWorld(){
+			var tmparr = [];
             for(var i in theWorld.arr){
+				var arr2 = [];
+				tmparr.push(arr2);
                 if(i == 0 || i == theWorld.arr.length - 1){
                     continue
                 }
@@ -120,16 +123,23 @@
                     }
                     i = parseInt(i);
                     j = parseInt(j);
-                    if(theWorld.getMatrix(i,j) != 2){
-                        theWorld.arr[i][j] = theWorld.getMatrix(i,j)==3 | false;
-                    }
-                    if(theWorld.arr[i][j]){
+                    if(theWorld.getMatrix(i,j) == 2){
+                        tmparr[i][j] = theWorld.arr[i][j];
+                    }else{
+						tmparr[i][j] = theWorld.getMatrix(i,j)==3 | false;
+					}
+                }
+            }
+			for(var i in theWorld.arr){
+				for(var j in theWorld.arr[i]){
+					theWorld.arr[i][j] = tmparr[i][j];
+					if(tmparr[i][j]){
                         setAlive(i,j)
                     }else{
                         setDead(i,j)
                     }
-                }
-            }
+				}
+			}
 			if(!stop)
 			setTimeout(setWorld,t);
         }
@@ -170,6 +180,8 @@
 		document.getElementById('rand').addEventListener('click',function(){
 			autoSelectAlive(false);
 		})
+		
+		window.t = theWorld;
     }
     initPersons(20,20,.3,false,100);
 
