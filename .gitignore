@@ -1,0 +1,20 @@
+/target
+/WebContent
+/src/main/resources
+/src/main/java/ch64web/Test
+.settings
+.project
+.classpath
+*.jar
+*.war
+*.ear
+*.class
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.iml
