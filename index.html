@@ -69,6 +69,9 @@
 						break;
 					}
 				}
+				if(onEdge(i,j)){
+					return;
+				}
 				if(theWorld.arr[j][i]){
 					setDead(j,i);
 				}else{
@@ -76,7 +79,11 @@
 				}
 			})
 		}
-
+		
+		function onEdge(i,j){
+			return i == 0|| j == 0 || j == a || i == b;
+		}
+		
         function autoSelectAlive(none){
             var uel = document.getElementById("uel");
 			theWorld.arr = [];
@@ -84,7 +91,7 @@
                 var newLine = [];
                 theWorld.arr.push(newLine);
                 for(var j = 0;j < a+1;j++){
-                    if(i == 0|| j == 0 || j == a || i == b || none){
+                    if(onEdge(i,j) || none){
                         newLine.push(false);
 						continue;
                     }
