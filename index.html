@@ -8,14 +8,17 @@
     <div id="wd" class="world"></div>
 	<div class="options">
         <form>
-            <label>宽:</label><input id="a" type="number" min='0' value="20" placeholder="宽"/><br/>
-            <label>高:</label><input id="b" type="number" min='0' value="20" placeholder="高"/><br/>
-            <label>初始生存率:</label><input id="p" type="number" min='0' value="0.3" placeholder="初始生存率,0-1之间"/><br/>
+            <label>宽:</label><input id="a" type="number" min='0' max="80" value="20" placeholder="宽"/><br/>
+            <label>高:</label><input id="b" type="number" min='0' max="80" value="20" placeholder="高"/><br/>
+            <label>初始生存率:</label><input id="p" type="number" min='0' max="1" value="0.3" step="0.1" placeholder="初始生存率,0-1之间"/><br/>
             <label>间隔时间(ms):</label><input id="time" type="number" min='0' value="100" placeholder="间隔时间(ms)"/><br/>
+            <label>初始状态:</label><input id="initStatus" type="text" value="[[0,0,1],[1,0,1],[0,1,1]]" placeholder="间隔时间(ms)"/><a id="useInitStatus">应用</a><br/>
         </form>
         <br/>
 		<button id="start">开始</button>
 		<button id="rand">随机</button>
+        <button id="slider">滑翔机</button>
+        <button id="shadow">幻影</button>
 		<button id="clear">清空</button>
 	</div>
 <script>
@@ -39,6 +42,17 @@
             }
         };
 
+        function stopGo(){
+            stop = true;
+            document.getElementById('start').innerText = '开始';
+        }
+
+        function continueGo() {
+            stop = false;
+            document.getElementById('start').innerText = '暂停';
+            setTimeout(setWorld,t);
+        }
+
         function initTable(){
             var wd = document.getElementById("wd");
 			wd.innerHTML=null;
@@ -57,6 +71,14 @@
             delete wd;
         }
 
+        function clearWorld() {
+            for(var i in theWorld.arr){
+                for(var j in theWorld.arr[i]){
+                    setDead(i,j)
+                }
+            }
+        }
+
 		function changeLife(i,j){
 			if(onEdge(i,j)){
 				return;
@@ -72,6 +94,7 @@
 			var wd = document.getElementById("wd");
 			wd.addEventListener('mouseover',function(e){
 			    e.cancelBubble = true;
+                e.preventDefault();
 				if(e.buttons == 0){
 					return;
 				}
@@ -92,6 +115,7 @@
 			});
 			wd.addEventListener('click',function(e){
                 e.cancelBubble = true;
+                e.preventDefault();
 				for(var i in e.target.parentNode.children){
 					if(e.target.parentNode.children[i] == e.target){
 						break;
@@ -108,15 +132,11 @@
                 autoSelectAlive(false);
             })
             document.getElementById('clear').addEventListener('click',function(){
-                stop = true;
-                document.getElementById('start').innerText = '开始';
-                for(var i in theWorld.arr){
-                    for(var j in theWorld.arr[i]){
-                        setDead(i,j)
-                    }
-                }
+                stopGo();
+                clearWorld();
             })
             document.getElementById('start').addEventListener('click',function(){
+
                 t = document.getElementById('time').value || 0;
                 if(document.getElementById('a').value != a || document.getElementById('b').value !=b){
                     var at = parseInt(document.getElementById('a').value) || 20;
@@ -130,18 +150,51 @@
                 }
                 p = document.getElementById('p').value || .3;
                 if(stop){
-                    document.getElementById('start').innerText = '暂停';
-                    setTimeout(setWorld,t);
+                    continueGo();
                 }else{
-                    document.getElementById('start').innerText = '开始';
+                    stopGo();
                 }
-                stop = !stop;
             })
+            document.getElementById('slider').addEventListener('click',function(){
+                stopGo();
+                var arr = [[0,0,1],[1,0,1],[0,1,1]];
+                selectAliveByArray(arr);
+            })
+            document.getElementById('shadow').addEventListener('click',function(){
+                var rl = document.styleSheets[0].cssRules;
+                for(var i in rl){
+                    if(rl[i].selectorText == '.el'){
+                        console.log(rl[i].style.transition)
+                        if(rl[i].style.transition){
+                            rl[i].style.transition = null;
+                        }else{
+                            rl[i].style.transition = 'background-color ease-in-out 200ms';
+                        }
+                    }
+                }
+            })
+            document.getElementById('useInitStatus').addEventListener('click',function(){
+                stopGo();
+                var arr = JSON.parse(document.querySelector("#initStatus").value);
+                selectAliveByArray(arr);
+            })
+
 		}
 
 		function onEdge(i,j){
 			return i == 0|| j == 0 || j == a || i == b;
 		}
+
+		function selectAliveByArray(arr){
+            clearWorld();
+            for(var i  = 0;i<arr.length;i++){
+                for(var j = 0;j < arr[i].length;j++){
+                    if(arr[i][j]){
+                        setAlive(i+1,j+1);
+                    }
+                }
+            }
+        }
 
         function autoSelectAlive(none){
             var uel = document.getElementById("uel");
@@ -213,21 +266,21 @@
         initTable();
         addEvent();
 		if(auto){
-            stop = false;
-            document.getElementById('start').innerText = '暂停';
+            continueGo();
 			autoSelectAlive();  //true是全部都死掉
 			setTimeout(setWorld,t);
 		}else{
 			autoSelectAlive(true);
 		}
     }
-    initPersons(20,20,.3,true,100);
+    initPersons(20,20,.3,false,100);
 
 </script>
 <style>
     *{
         padding: 0;
         margin: 0;
+        font-size: 14px;
     }
     .world{
         margin: auto;
@@ -251,7 +304,6 @@
         display: inline-block;
         border-right:solid 1px lightgray;
         border-bottom:solid 1px lightgray;
-        #transition: background-color ease-in-out 200ms;
     }
     .el:nth-of-type(1){
         border-left:solid 1px lightgray;
@@ -274,6 +326,10 @@
     form>label{
         display: inline-block;
         width: 120px;
+    }
+    #useInitStatus{
+        color: #36e;
+        cursor: pointer;
     }
 
 </style>
