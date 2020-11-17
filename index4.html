@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>函数</title>
+</head>
+<body>
+<canvas id="canvas">
+</canvas>
+    <div class="options">
+        <form>
+            <label>宽:</label><input id="a" type="number" min='0' max="10000" value="100" placeholder="宽"/><br/>
+            <label>高:</label><input id="b" type="number" min='0' max="10000" value="100" placeholder="高"/><br/>
+            <label>函数(可以用chrome控制台直接运行, $x为自变量, 这个函数功能还没弄完):</label><input id="func" type="text" value="Math.sin($x)" placeholder="间隔时间(ms)"/><a id="useInitStatus">应用</a><br/>
+        </form>
+        <br/>
+        <button id="set">应用宽高设置</button>
+        <button id="start">开始</button>
+        <button id="clear">清空</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas')
+        const ctx = canvas.getContext('2d')
+        let width = 200
+        let height = 100
+        let scale = 0.1
+        // canvas.height = height
+
+        function addEvent(){
+            // document.getElementById('rand').addEventListener('click',function(){
+            //     autoSelectAlive(false);
+            // })
+            // document.getElementById('clear').addEventListener('click',function(){
+            //     stopGo();
+            //     clearWorld();
+            // })
+            // document.getElementById('start').addEventListener('click',function(){
+            //     stop ? continueGo() : stopGo()
+            // })
+            // document.getElementById('useInitStatus').addEventListener('click',function(){
+            //     stopGo();
+            //     let arr = JSON.parse(document.querySelector("#initStatus").value);
+            //     selectAliveByArray(arr);
+            // })
+            // document.getElementById('set').addEventListener('click',function(){
+            //     a = parseInt(document.getElementById('a').value)
+            //     b = parseInt(document.getElementById('b').value)
+            //     init()
+            // })
+        }
+        const imageData = ctx.createImageData(width, height);
+        const func = document.getElementById('func').value
+        function animation() {
+            let w = width
+            let h = height
+            for (let i = 0; i < width * height; i++) {
+                let ii = i * 4
+                let $x = (w / 2 - i % w ) / 10
+                let y = h / 2 - Math.floor(i / h)
+                let calc = Math.floor(eval(func) * 10)
+                console.log($x, y, calc)
+                if (Math.floor(y) === calc) {
+                    imageData.data[ii + 0] = 0;        // R value
+                    imageData.data[ii + 1] = 0;        // G value
+                    imageData.data[ii + 2] = 0;  // B value
+                    imageData.data[ii + 3] = 255;      // A value
+                }
+            }
+            ctx.putImageData(imageData, 0,0);
+            // window.requestAnimationFrame(animation)
+        }
+        animation()
+
+    </script>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        body {
+            text-align: center;
+        }
+        .options{
+            text-align: center;
+        }
+        form{
+            margin: auto;
+            text-align: left;
+            display: inline-block;
+        }
+        form>label{
+            display: inline-block;
+            width: 120px;
+        }
+        #useInitStatus{
+            color: #36e;
+            cursor: pointer;
+        }
+
+    </style>
+</body>
+</html>
